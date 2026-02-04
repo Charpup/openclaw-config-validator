@@ -1,0 +1,29 @@
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Runtime
+/tmp/
+*.tmp
+
+# Backups
+*.backup
+*.bak
+
+# Node modules (if any)
+node_modules/
+
+# Don't track validation reports
+/tmp/schema-validation-*.md
+/tmp/runtime-schema-*.md
