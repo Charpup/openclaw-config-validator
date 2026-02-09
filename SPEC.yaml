@@ -1,0 +1,283 @@
+spec_version: "1.0"
+module_name: "openclaw_config_validator"
+description: "OpenClaw configuration validation and audit skill with Research Workflow integration"
+version: "2.0.0"
+author: "Galatea"
+date: "2026-02-09"
+
+context:
+  purpose: >
+    Prevent OpenClaw configuration errors by enforcing Research Workflow and schema validation.
+    Acts as a mandatory checkpoint for any configuration modification operations.
+  target_users: "OpenClaw agents (Galatea) and external auditors (Claude.ai via Notion)"
+
+architecture:
+  type: "layered"
+  layers:
+    - name: "Research Layer"
+      role: "Fetch official docs, GitHub issues, validate against schema"
+    - name: "Validation Layer"
+      role: "Schema validation, risk assessment, safety checks"
+    - name: "Audit Layer"
+      role: "Notion integration for external audit workflows"
+    - name: "Execution Layer"
+      role: "Scripts for runtime schema extraction and validation"
+
+interfaces:
+  - name: "ResearchWorkflow"
+    type: "class"
+    description: "Enforces 'check official docs first' policy"
+    
+    methods:
+      - name: "fetch_official_docs"
+        signature: "(topic: str) -> dict"
+        description: "Fetch and parse OpenClaw official documentation"
+        contract:
+          preconditions:
+            - "topic is a valid OpenClaw configuration topic"
+          postconditions:
+            - "returns parsed documentation content"
+        test_cases:
+          - id: "TC-RW-001"
+            name: "Fetch gateway configuration docs"
+            input:
+              topic: "gateway/configuration"
+            expected:
+              success: true
+              contains: ["port", "bind", "mode"]
+              
+      - name: "search_github_issues"
+        signature: "(error_message: str) -> list"
+        description: "Search OpenClaw GitHub for related issues"
+        contract:
+          preconditions:
+            - "error_message is not empty"
+          postconditions:
+            - "returns list of matching issues"
+        test_cases:
+          - id: "TC-RW-002"
+            name: "Search for config error"
+            input:
+              error_message: "Unrecognized key"
+            expected:
+              success: true
+              min_results: 1
+
+  - name: "SchemaValidator"
+    type: "class"
+    description: "Validate configuration against OpenClaw schema"
+    
+    methods:
+      - name: "validate_config"
+        signature: "(config_path: str) -> dict"
+        description: "Validate configuration file against schema"
+        contract:
+          preconditions:
+            - "config_path exists and is readable"
+          postconditions:
+            - "returns validation result with errors if any"
+        test_cases:
+          - id: "TC-SV-001"
+            name: "Valid config"
+            input:
+              config_path: "~/.openclaw/openclaw.json"
+            expected:
+              valid: true
+              errors: []
+              
+      - name: "check_field_exists"
+        signature: "(field_path: str) -> bool"
+        description: "Check if a field path exists in schema"
+        contract:
+          preconditions:
+            - "field_path is a dot-notation path"
+          postconditions:
+            - "returns true if field exists in schema"
+        test_cases:
+          - id: "TC-SV-002"
+            name: "Check existing field"
+            input:
+              field_path: "gateway.port"
+            expected:
+              exists: true
+              
+          - id: "TC-SV-003"
+            name: "Check non-existent field"
+            input:
+              field_path: "web.braveApiKey"
+            expected:
+              exists: false
+              warning: "FORBIDDEN_FIELD"
+
+  - name: "RiskAssessor"
+    type: "class"
+    description: "Assess risk level of configuration changes"
+    
+    methods:
+      - name: "assess_change"
+        signature: "(change: dict) -> str"
+        description: "Assess risk level (🟢🟡🔴) of proposed change"
+        contract:
+          preconditions:
+            - "change contains node and action fields"
+          postconditions:
+            - "returns one of: low, medium, high"
+        test_cases:
+          - id: "TC-RA-001"
+            name: "High risk gateway change"
+            input:
+              change:
+                node: "gateway"
+                action: "modify"
+            expected:
+              risk: "high"
+              requires_approval: true
+              
+          - id: "TC-RA-002"
+            name: "Low risk logging change"
+            input:
+              change:
+                node: "logging"
+                action: "modify"
+            expected:
+              risk: "low"
+              requires_approval: false
+
+  - name: "NotionAuditor"
+    type: "class"
+    description: "External audit workflow via Notion (optional)"
+    
+    methods:
+      - name: "read_proposal"
+        signature: "(notion_page_id: str) -> dict"
+        description: "Read agent proposal from Notion page"
+        contract:
+          preconditions:
+            - "notion_page_id is valid"
+          postconditions:
+            - "returns parsed proposal content"
+            
+      - name: "write_audit_result"
+        signature: "(notion_page_id: str, result: dict) -> bool"
+        description: "Write audit results back to Notion"
+        contract:
+          preconditions:
+            - "notion_page_id is valid"
+            - "result contains assessment and recommendations"
+          postconditions:
+            - "returns true if write successful"
+
+scenarios:
+  - id: "E2E-001"
+    name: "Complete Research Workflow before config change"
+    priority: high
+    
+    given:
+      - condition: "User requests configuration change"
+      - condition: "Research Workflow is enabled"
+      
+    when:
+      - action: "Fetch official documentation for target node"
+      - action: "Search GitHub for related issues"
+      - action: "Validate against SCHEMA.md"
+      - action: "Assess risk level"
+      
+    then:
+      - expectation: "Official docs confirm field exists"
+      - expectation: "No blocking issues found on GitHub"
+      - expectation: "Risk level is assessed"
+      - expectation: "Proceed only if all checks pass"
+      
+    quality_attributes:
+      - name: "research_time"
+        threshold: "< 30s"
+
+  - id: "E2E-002"
+    name: "External audit via Notion"
+    priority: medium
+    
+    given:
+      - condition: "Notion page with agent proposal exists"
+      - condition: "External auditor (Claude) is reviewing"
+      
+    when:
+      - action: "Read proposal from Notion"
+      - action: "Execute Research Workflow"
+      - action: "Validate against schema"
+      - action: "Write audit results to Notion"
+      
+    then:
+      - expectation: "Audit results are comprehensive"
+      - expectation: "Specific commands provided for execution"
+      - expectation: "Risk assessment is clear"
+
+  - id: "E2E-003"
+    name: "Prevent forbidden field addition"
+    priority: high
+    
+    given:
+      - condition: "Agent proposes adding web.braveApiKey"
+      
+    when:
+      - action: "Check field against forbidden list"
+      
+    then:
+      - expectation: "Field is flagged as FORBIDDEN"
+      - expectation: "Alternative solution suggested"
+      - expectation: "Config change is blocked"
+
+acceptance_criteria:
+  functional:
+    - "Research Workflow executes before any config modification"
+    - "Schema validation passes for valid configs"
+    - "Forbidden fields are detected and blocked"
+    - "Risk assessment correctly classifies 🟢🟡🔴"
+    - "Notion audit workflow is functional (optional)"
+    - "All unit tests pass"
+    - "Code coverage >= 70%"
+    
+  non_functional:
+    - "Research Workflow completes in < 30s"
+    - "Schema validation completes in < 5s"
+    - "Documentation is comprehensive"
+
+testing_strategy:
+  unit_tests:
+    focus: "Single methods: validate_config, assess_change, check_field_exists"
+    coverage_target: 80
+  integration_tests:
+    focus: "Research Workflow + Schema Validator collaboration"
+  acceptance_tests:
+    focus: "Complete E2E workflows"
+
+dependencies:
+  runtime:
+    - package: "jq"
+      description: "JSON processing"
+    - package: "curl"
+      description: "HTTP requests for docs"
+  development:
+    - package: "pytest"
+      version: ">=7.0.0"
+    - package: "pyyaml"
+      version: ">=6.0"
+
+files_to_create:
+  - path: "AUDITOR_PROMPT.md"
+    description: "External audit workflow via Notion"
+  - path: "reference/resources.md"
+    description: "Resource index from auditor skill"
+  - path: "scripts/audit-proposal.sh"
+    description: "Executable Research Workflow script"
+  - path: "tests/unit/test_validator.py"
+    description: "Unit tests for validation logic"
+  - path: "tests/integration/test_workflow.py"
+    description: "Integration tests for Research Workflow"
+
+files_to_update:
+  - path: "SKILL.md"
+    description: "Unified entry point with Research Workflow emphasis"
+  - path: "AGENT_PROMPT.md"
+    description: "Add Research Workflow as Step 0"
+  - path: "reference/SCHEMA.md"
+    description: "Add schema-quick-ref as appendix"
