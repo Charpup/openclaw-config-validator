@@ -1,0 +1,1155 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+      "meta": {
+        "type": "object",
+        "properties": {
+          "lastTouchedVersion": { "type": "string" },
+          "lastTouchedAt": { "type": "string" }
+        },
+        "additionalProperties": false
+      },
+      "update": {
+        "type": "object",
+        "properties": {
+          "channel": { 
+            "type": "string",
+            "enum": ["stable", "beta", "nightly"]
+          },
+          "checkOnStart": { "type": "boolean" }
+        },
+        "additionalProperties": false
+      },
+      "diagnostics": {
+        "type": "object",
+        "properties": {
+          "enabled": { "type": "boolean" },
+          "flags": { 
+            "type": "array", 
+            "items": { "type": "string" } 
+          },
+          "otel": {
+            "type": "object",
+            "properties": {
+              "enabled": { "type": "boolean" },
+              "endpoint": { "type": "string" },
+              "protocol": { 
+                "type": "string",
+                "enum": ["grpc", "http"]
+              },
+              "headers": { "type": "object" },
+              "serviceName": { 
+                "type": "string",
+                "default": "openclaw-gateway"
+              },
+              "traces": { "type": "boolean" },
+              "metrics": { "type": "boolean" },
+              "logs": { "type": "boolean" },
+              "sampleRate": { "type": "number" },
+              "flushIntervalMs": { "type": "integer" }
+            },
+            "additionalProperties": false
+          },
+          "cacheTrace": {
+            "type": "object",
+            "properties": {
+              "enabled": { "type": "boolean" },
+              "filePath": { "type": "string" },
+              "includeMessages": { "type": "boolean" },
+              "includePrompt": { "type": "boolean" },
+              "includeSystem": { "type": "boolean" }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "agents": {
+        "type": "object",
+        "properties": {
+          "defaults": {
+            "type": "object",
+            "properties": {
+              "workspace": { 
+                "type": "string",
+                "default": "~/.openclaw/workspace"
+              },
+              "repoRoot": { "type": "string" },
+              "skipBootstrap": { 
+                "type": "boolean",
+                "default": false
+              },
+              "bootstrapMaxChars": { 
+                "type": "integer",
+                "default": 15000
+              },
+              "userTimezone": { "type": "string" },
+              "timeFormat": { "type": "string" },
+              "envelopeTimezone": { "type": "string" },
+              "envelopeTimestamp": { "type": "string" },
+              "envelopeElapsed": { "type": "string" },
+              "models": { "type": "object" },
+              "model": {
+                "type": "object",
+                "properties": {
+                  "primary": { 
+                    "type": "string",
+                    "default": "moonshot/kimi-k2.5"
+                  },
+                  "fallbacks": { 
+                    "type": "array", 
+                    "items": { "type": "string" } 
+                  }
+                }
+              },
+              "imageModel": {
+                "type": "object",
+                "properties": {
+                  "primary": { "type": "string" },
+                  "fallbacks": { 
+                    "type": "array", 
+                    "items": { "type": "string" } 
+                  }
+                }
+              },
+              "thinkingDefault": { 
+                "type": "string",
+                "enum": ["off", "low", "medium", "high"],
+                "default": "low"
+              },
+              "verboseDefault": { "type": "string" },
+              "elevatedDefault": { "type": "string" },
+              "timeoutSeconds": { 
+                "type": "integer",
+                "default": 600
+              },
+              "mediaMaxMb": { 
+                "type": "integer",
+                "default": 100
+              },
+              "heartbeat": {
+                "type": "object",
+                "properties": {
+                  "every": { 
+                    "type": "string",
+                    "default": "30m"
+                  },
+                  "target": { "type": "string" }
+                }
+              },
+              "maxConcurrent": { 
+                "type": "integer",
+                "default": 4
+              },
+              "subagents": {
+                "type": "object",
+                "properties": {
+                  "model": { "type": "string" },
+                  "maxConcurrent": { 
+                    "type": "integer",
+                    "default": 4
+                  },
+                  "archiveAfterMinutes": { 
+                    "type": "integer",
+                    "default": 30
+                  }
+                }
+              },
+              "exec": {
+                "type": "object",
+                "properties": {
+                  "backgroundMs": { 
+                    "type": "integer",
+                    "default": 10000
+                  },
+                  "timeoutSec": { 
+                    "type": "integer",
+                    "default": 300
+                  },
+                  "cleanupMs": { 
+                    "type": "integer",
+                    "default": 5000
+                  }
+                }
+              },
+              "contextTokens": { 
+                "type": "integer",
+                "default": 128000
+              },
+              "contextPruning": {
+                "type": "object",
+                "properties": {
+                  "mode": { 
+                    "type": "string",
+                    "enum": ["off", "cache-ttl"],
+                    "default": "off"
+                  },
+                  "ttl": { 
+                    "type": "string",
+                    "default": "5m"
+                  },
+                  "keepLastAssistants": { 
+                    "type": "integer",
+                    "default": 3
+                  },
+                  "softTrimRatio": { 
+                    "type": "number",
+                    "default": 0.3
+                  },
+                  "hardClearRatio": { 
+                    "type": "number",
+                    "default": 0.5
+                  },
+                  "minPrunableToolChars": { 
+                    "type": "integer",
+                    "default": 50000
+                  },
+                  "softTrim": {
+                    "type": "object",
+                    "properties": {
+                      "maxChars": { 
+                        "type": "integer",
+                        "default": 4000
+                      },
+                      "headChars": { 
+                        "type": "integer",
+                        "default": 1500
+                      },
+                      "tailChars": { 
+                        "type": "integer",
+                        "default": 1500
+                      }
+                    }
+                  },
+                  "hardClear": {
+                    "type": "object",
+                    "properties": {
+                      "enabled": { 
+                        "type": "boolean",
+                        "default": true
+                      },
+                      "placeholder": { 
+                        "type": "string",
+                        "default": "[Old tool result content cleared]"
+                      }
+                    }
+                  },
+                  "tools": {
+                    "type": "object",
+                    "properties": {
+                      "allow": { 
+                        "type": "array", 
+                        "items": { "type": "string" } 
+                      },
+                      "deny": { 
+                        "type": "array", 
+                        "items": { "type": "string" } 
+                      }
+                    }
+                  }
+                }
+              },
+              "compaction": {
+                "type": "object",
+                "properties": {
+                  "mode": { 
+                    "type": "string",
+                    "enum": ["auto", "manual"],
+                    "default": "auto"
+                  },
+                  "reserveTokensFloor": { 
+                    "type": "integer",
+                    "default": 8000
+                  },
+                  "memoryFlush": {
+                    "type": "object",
+                    "properties": {
+                      "enabled": { 
+                        "type": "boolean",
+                        "default": true
+                      },
+                      "softThresholdTokens": { 
+                        "type": "integer",
+                        "default": 100000
+                      },
+                      "systemPrompt": { "type": "string" },
+                      "prompt": { "type": "string" }
+                    }
+                  }
+                }
+              },
+              "sandbox": {
+                "type": "object",
+                "properties": {
+                  "mode": { 
+                    "type": "string",
+                    "enum": ["off", "non-main", "all"],
+                    "default": "non-main"
+                  },
+                  "scope": { 
+                    "type": "string",
+                    "enum": ["session", "global"],
+                    "default": "session"
+                  },
+                  "workspaceAccess": { 
+                    "type": "string",
+                    "enum": ["none", "read", "write"],
+                    "default": "none"
+                  },
+                  "workspaceRoot": { "type": "string" },
+                  "docker": {
+                    "type": "object",
+                    "properties": {
+                      "image": { "type": "string" },
+                      "env": { "type": "object" },
+                      "user": { "type": "string" },
+                      "readOnlyRoot": { 
+                        "type": "boolean",
+                        "default": true
+                      },
+                      "setupCommand": { "type": "string" }
+                    }
+                  }
+                }
+              },
+              "humanDelay": {
+                "type": "object",
+                "properties": {
+                  "mode": { 
+                    "type": "string",
+                    "enum": ["off", "fixed", "random"],
+                    "default": "off"
+                  },
+                  "minMs": { 
+                    "type": "integer",
+                    "default": 1000
+                  },
+                  "maxMs": { 
+                    "type": "integer",
+                    "default": 3000
+                  }
+                }
+              },
+              "cliBackends": { 
+                "type": "array", 
+                "items": { "type": "string" } 
+              },
+              "memorySearch": {
+                "type": "object",
+                "properties": {
+                  "enabled": { 
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "sources": { 
+                    "type": "array", 
+                    "items": { "type": "string" } 
+                  },
+                  "extraPaths": { 
+                    "type": "array", 
+                    "items": { "type": "string" } 
+                  },
+                  "provider": { 
+                    "type": "string",
+                    "default": "openai"
+                  },
+                  "model": { 
+                    "type": "string",
+                    "default": "text-embedding-3-small"
+                  },
+                  "remote": {
+                    "type": "object",
+                    "properties": {
+                      "baseUrl": { "type": "string" },
+                      "apiKey": { "type": "string" },
+                      "headers": { "type": "object" }
+                    }
+                  },
+                  "fallback": { 
+                    "type": "string",
+                    "default": "openai"
+                  }
+                }
+              }
+            }
+          },
+          "list": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string" },
+                "default": { "type": "boolean" },
+                "name": { "type": "string" },
+                "workspace": { "type": "string" },
+                "agentDir": { "type": "string" },
+                "model": { "type": "string" },
+                "identity": {
+                  "type": "object",
+                  "properties": {
+                    "name": { "type": "string" },
+                    "theme": { "type": "string" },
+                    "emoji": { "type": "string" },
+                    "avatar": { "type": "string" }
+                  }
+                },
+                "sandbox": { "type": "object" },
+                "tools": { "type": "object" },
+                "groupChat": {
+                  "type": "object",
+                  "properties": {
+                    "mentionPatterns": { 
+                      "type": "array",
+                      "items": { "type": "string" },
+                      "default": ["@openclaw"]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "tools": {
+        "type": "object",
+        "properties": {
+          "media": {
+            "type": "object",
+            "properties": {
+              "image": {
+                "type": "object",
+                "properties": {
+                  "enabled": { "type": "boolean" },
+                  "maxBytes": { "type": "integer" },
+                  "maxChars": { "type": "integer" },
+                  "prompt": { "type": "string" },
+                  "timeoutSeconds": { "type": "integer" }
+                }
+              },
+              "audio": {
+                "type": "object",
+                "properties": {
+                  "enabled": { "type": "boolean" },
+                  "maxBytes": { "type": "integer" },
+                  "maxChars": { "type": "integer" },
+                  "prompt": { "type": "string" },
+                  "timeoutSeconds": { "type": "integer" },
+                  "language": { 
+                    "type": "string",
+                    "default": "auto"
+                  }
+                }
+              },
+              "video": {
+                "type": "object",
+                "properties": {
+                  "enabled": { "type": "boolean" },
+                  "maxBytes": { "type": "integer" },
+                  "maxChars": { "type": "integer" },
+                  "prompt": { "type": "string" },
+                  "timeoutSeconds": { "type": "integer" }
+                }
+              }
+            }
+          },
+          "web": {
+            "type": "object",
+            "properties": {
+              "search": {
+                "type": "object",
+                "properties": {
+                  "enabled": { "type": "boolean" },
+                  "provider": { "type": "string" },
+                  "apiKey": { "type": "string" },
+                  "maxResults": { "type": "integer" },
+                  "timeoutSeconds": { "type": "integer" }
+                }
+              },
+              "fetch": {
+                "type": "object",
+                "properties": {
+                  "enabled": { "type": "boolean" },
+                  "maxChars": { "type": "integer" },
+                  "timeoutSeconds": { "type": "integer" }
+                }
+              }
+            }
+          },
+          "exec": {
+            "type": "object",
+            "properties": {
+              "applyPatch": {
+                "type": "object",
+                "properties": {
+                  "enabled": { "type": "boolean" },
+                  "allowModels": { 
+                    "type": "array", 
+                    "items": { "type": "string" } 
+                  }
+                }
+              },
+              "notifyOnExit": { "type": "boolean" },
+              "approvalRunningNoticeMs": { 
+                "type": "integer",
+                "default": 10000
+              },
+              "host": { "type": "string" },
+              "security": { 
+                "type": "string",
+                "enum": ["deny", "allowlist", "full"]
+              },
+              "ask": { 
+                "type": "string",
+                "enum": ["off", "on-miss", "always"],
+                "default": "on-miss"
+              }
+            }
+          },
+          "agentToAgent": {
+            "type": "object",
+            "properties": {
+              "enabled": { "type": "boolean" },
+              "allow": { 
+                "type": "array", 
+                "items": { "type": "string" } 
+              }
+            }
+          }
+        }
+      },
+      "bindings": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "agentId": { "type": "string" },
+            "match": {
+              "type": "object",
+              "properties": {
+                "channel": { "type": "string" },
+                "accountId": { "type": "string" },
+                "peer": { "type": "object" },
+                "guildId": { "type": "string" },
+                "teamId": { "type": "string" }
+              }
+            }
+          }
+        }
+      },
+      "audio": {
+        "type": "object",
+        "properties": {
+          "tts": {
+            "type": "object",
+            "properties": {
+              "enabled": { "type": "boolean" },
+              "provider": { 
+                "type": "string",
+                "enum": ["elevenlabs", "openai", "edge"]
+              },
+              "voiceId": { "type": "string" },
+              "modelId": { 
+                "type": "string",
+                "default": "eleven_v3"
+              }
+            }
+          },
+          "voiceWake": {
+            "type": "object",
+            "properties": {
+              "enabled": { "type": "boolean" },
+              "triggerWord": { 
+                "type": "string",
+                "default": "Hey OpenClaw"
+              },
+              "provider": { "type": "string" }
+            }
+          }
+        }
+      },
+      "models": {
+        "type": "object",
+        "properties": {
+          "mode": { 
+            "type": "string",
+            "enum": ["merge", "override"],
+            "default": "merge"
+          },
+          "providers": {
+            "type": "object",
+            "patternProperties": {
+              "^[a-zA-Z0-9_-]+$": {
+                "type": "object",
+                "properties": {
+                  "baseUrl": { "type": "string" },
+                  "apiKey": { "type": "string" },
+                  "models": { "type": "object" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "messages": {
+        "type": "object",
+        "properties": {
+          "queue": {
+            "type": "object",
+            "properties": {
+              "mode": { 
+                "type": "string",
+                "enum": ["collect", "stream", "off"],
+                "default": "collect"
+              },
+              "debounceMs": { 
+                "type": "integer",
+                "default": 500
+              },
+              "cap": { 
+                "type": "integer",
+                "default": 20
+              },
+              "drop": { 
+                "type": "string",
+                "enum": ["oldest", "newest"],
+                "default": "oldest"
+              },
+              "byChannel": { "type": "object" }
+            }
+          },
+          "inbound": {
+            "type": "object",
+            "properties": {
+              "debounceMs": { 
+                "type": "integer",
+                "default": 300
+              },
+              "byChannel": { "type": "object" }
+            }
+          },
+          "ackReaction": { 
+            "type": "string",
+            "default": "👀"
+          },
+          "ackReactionScope": { 
+            "type": "string",
+            "enum": ["message", "sender"],
+            "default": "message"
+          },
+          "removeAckAfterReply": { 
+            "type": "boolean",
+            "default": true
+          },
+          "tts": {
+            "type": "object",
+            "properties": {
+              "auto": { 
+                "type": "string",
+                "enum": ["off", "all", "dm-only"],
+                "default": "off"
+              },
+              "mode": { 
+                "type": "string",
+                "enum": ["elevenlabs", "openai", "edge"]
+              },
+              "provider": { "type": "string" },
+              "elevenlabs": {
+                "type": "object",
+                "properties": {
+                  "voiceId": { "type": "string" },
+                  "modelId": { "type": "string" }
+                }
+              },
+              "openai": {
+                "type": "object",
+                "properties": {
+                  "voice": { 
+                    "type": "string",
+                    "default": "alloy"
+                  }
+                }
+              },
+              "edge": {
+                "type": "object",
+                "properties": {
+                  "voice": { 
+                    "type": "string",
+                    "default": "en-US-AriaNeural"
+                  }
+                }
+              }
+            }
+          },
+          "responsePrefix": { "type": "string" },
+          "groupChat": {
+            "type": "object",
+            "properties": {
+              "mentionPatterns": { 
+                "type": "array",
+                "items": { "type": "string" }
+              }
+            }
+          }
+        }
+      },
+      "commands": {
+        "type": "object",
+        "properties": {
+          "native": { 
+            "anyOf": [
+              { "type": "boolean" },
+              { 
+                "type": "string",
+                "enum": ["auto", "true", "false"]
+              }
+            ],
+            "default": "auto"
+          },
+          "nativeSkills": { 
+            "anyOf": [
+              { "type": "boolean" },
+              { 
+                "type": "string",
+                "enum": ["auto", "true", "false"]
+              }
+            ],
+            "default": "auto"
+          },
+          "text": { "type": "boolean" },
+          "bash": { "type": "boolean" },
+          "bashForegroundMs": { "type": "integer" },
+          "config": { "type": "boolean" },
+          "debug": { "type": "boolean" },
+          "restart": { "type": "boolean" },
+          "useAccessGroups": { "type": "boolean" }
+        },
+        "required": ["native", "nativeSkills"]
+      },
+      "session": {
+        "type": "object",
+        "properties": {
+          "scope": { 
+            "type": "string",
+            "enum": ["per-sender", "per-channel", "global"],
+            "default": "per-sender"
+          },
+          "dmScope": { 
+            "type": "string",
+            "enum": ["per-sender", "per-channel", "global"]
+          },
+          "identityLinks": { "type": "object" },
+          "resetTriggers": { 
+            "type": "array",
+            "items": { "type": "string" },
+            "default": ["/reset", "/new"]
+          },
+          "reset": {
+            "type": "object",
+            "properties": {
+              "mode": { 
+                "type": "string",
+                "enum": ["daily", "weekly", "off"],
+                "default": "daily"
+              },
+              "atHour": { 
+                "type": "integer",
+                "default": 4
+              }
+            }
+          },
+          "resetByType": { "type": "object" },
+          "store": { 
+            "type": "string",
+            "default": "~/.openclaw/agents/{agentId}/sessions/sessions.json"
+          },
+          "typingIntervalSeconds": { "type": "integer" },
+          "typingMode": { 
+            "type": "string",
+            "enum": ["message", "fixed", "off"],
+            "default": "message"
+          },
+          "mainKey": { 
+            "type": "string",
+            "default": "main"
+          },
+          "sendPolicy": { "type": "object" },
+          "agentToAgent": {
+            "type": "object",
+            "properties": {
+              "maxPingPongTurns": { 
+                "type": "integer",
+                "default": 5
+              }
+            }
+          }
+        }
+      },
+      "cron": {
+        "type": "object",
+        "properties": {
+          "enabled": { "type": "boolean" },
+          "store": { 
+            "type": "string",
+            "default": "~/.openclaw/cron.json"
+          },
+          "maxConcurrentRuns": { 
+            "type": "integer",
+            "default": 4
+          }
+        }
+      },
+      "hooks": {
+        "type": "object",
+        "properties": {
+          "enabled": { "type": "boolean" },
+          "path": { 
+            "type": "string",
+            "default": "/webhook"
+          },
+          "token": { "type": "string" },
+          "maxBodyBytes": { 
+            "type": "integer",
+            "default": 1048576
+          },
+          "presets": { 
+            "type": "array", 
+            "items": { "type": "string" } 
+          },
+          "transformsDir": { "type": "string" },
+          "mappings": { 
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "path": { "type": "string" },
+                "handler": { "type": "string" }
+              }
+            }
+          },
+          "gmail": { "type": "object" },
+          "internal": { "type": "object" }
+        }
+      },
+      "web": {
+        "type": "object",
+        "properties": {
+          "enabled": { "type": "boolean" },
+          "heartbeatSeconds": { 
+            "type": "integer",
+            "default": 60
+          },
+          "reconnect": {
+            "type": "object",
+            "properties": {
+              "initialMs": { 
+                "type": "integer",
+                "default": 2000
+              },
+              "maxMs": { 
+                "type": "integer",
+                "default": 30000
+              },
+              "backoffMultiplier": { 
+                "type": "integer",
+                "default": 2
+              }
+            }
+          }
+        }
+      },
+      "channels": {
+        "type": "object",
+        "properties": {
+          "discord": {
+            "type": "object",
+            "properties": {
+              "enabled": { "type": "boolean" },
+              "token": { "type": "string" },
+              "groupPolicy": { 
+                "type": "string",
+                "enum": ["open", "disabled", "allowlist"],
+                "default": "allowlist"
+              },
+              "guilds": { "type": "object" },
+              "dm": {
+                "type": "object",
+                "properties": {
+                  "enabled": { "type": "boolean" },
+                  "policy": { 
+                    "type": "string",
+                    "enum": ["open", "allowlist", "disabled"],
+                    "default": "open"
+                  },
+                  "allowFrom": { 
+                    "type": "array",
+                    "items": { "type": "string" }
+                  }
+                }
+              },
+              "actions": {
+                "type": "object",
+                "properties": {
+                  "sendMessage": { "type": "boolean" },
+                  "editMessage": { "type": "boolean" },
+                  "deleteMessage": { "type": "boolean" },
+                  "reactions": { "type": "boolean" }
+                }
+              },
+              "commands": {
+                "type": "object",
+                "properties": {
+                  "native": { 
+                    "type": "string",
+                    "enum": ["auto", "true", "false"]
+                  }
+                }
+              },
+              "replyToMode": { 
+                "type": "string",
+                "enum": ["thread", "channel", "off"],
+                "default": "thread"
+              },
+              "thread": {
+                "type": "object",
+                "properties": {
+                  "autoCreate": { "type": "boolean" },
+                  "ttlHours": { "type": "integer" }
+                }
+              },
+              "historyLimit": { "type": "integer" },
+              "textChunkLimit": { "type": "integer" },
+              "chunkMode": { 
+                "type": "string",
+                "enum": ["paragraph", "sentence", "fixed"]
+              },
+              "mediaMaxMb": { "type": "integer" }
+            }
+          },
+          "telegram": { "type": "object" },
+          "whatsapp": { "type": "object" },
+          "slack": { "type": "object" },
+          "feishu": { "type": "object" },
+          "signal": { "type": "object" },
+          "imessage": { "type": "object" }
+        }
+      },
+      "skills": {
+        "type": "object",
+        "properties": {
+          "allowBundled": { 
+            "type": "array", 
+            "items": { "type": "string" } 
+          },
+          "load": {
+            "type": "object",
+            "properties": {
+              "paths": { 
+                "type": "array",
+                "items": { "type": "string" }
+              }
+            }
+          },
+          "install": {
+            "type": "object",
+            "properties": {
+              "nodeManager": { 
+                "type": "string",
+                "enum": ["npm", "pnpm", "yarn"],
+                "default": "npm"
+              }
+            }
+          },
+          "entries": { "type": "object" }
+        }
+      },
+      "plugins": {
+        "type": "object",
+        "properties": {
+          "enabled": { "type": "boolean" },
+          "allow": { 
+            "type": "array", 
+            "items": { "type": "string" } 
+          },
+          "deny": { 
+            "type": "array", 
+            "items": { "type": "string" } 
+          },
+          "load": { "type": "object" },
+          "slots": { "type": "object" },
+          "entries": { "type": "object" },
+          "installs": { "type": "object" }
+        }
+      },
+      "talk": {
+        "type": "object",
+        "properties": {
+          "voiceId": { "type": "string" },
+          "voiceAliases": { "type": "object" },
+          "modelId": { 
+            "type": "string",
+            "default": "eleven_v3"
+          },
+          "outputFormat": { 
+            "type": "string",
+            "enum": ["pcm_44100", "pcm_24000", "mp3_44100", "mp3_24000"],
+            "default": "pcm_44100"
+          },
+          "apiKey": { "type": "string" },
+          "interruptOnSpeech": { "type": "boolean" }
+        }
+      },
+      "gateway": {
+        "type": "object",
+        "properties": {
+          "port": { 
+            "type": "integer",
+            "default": 18789
+          },
+          "mode": { 
+            "type": "string",
+            "enum": ["local", "remote"]
+          },
+          "bind": { 
+            "type": "string",
+            "enum": ["loopback", "lan", "tailnet", "auto", "custom"],
+            "default": "loopback"
+          },
+          "controlUi": {
+            "type": "object",
+            "properties": {
+              "enabled": { "type": "boolean" },
+              "allowedOrigins": { 
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "allowInsecureAuth": { "type": "boolean" },
+              "dangerouslyDisableDeviceAuth": { "type": "boolean" }
+            }
+          },
+          "auth": {
+            "type": "object",
+            "properties": {
+              "allowTailscale": { "type": "boolean" }
+            }
+          },
+          "tailscale": { "type": "object" },
+          "remote": {
+            "type": "object",
+            "properties": {
+              "token": { "type": "string" },
+              "tlsFingerprint": { "type": "string" }
+            }
+          },
+          "reload": { "type": "object" },
+          "tls": { "type": "object" },
+          "http": { "type": "object" },
+          "nodes": { "type": "object" },
+          "canvasHost": {
+            "type": "object",
+            "properties": {
+              "enabled": { "type": "boolean" },
+              "port": { 
+                "type": "integer",
+                "default": 18793
+              }
+            }
+          }
+        }
+      },
+      "browser": {
+        "type": "object",
+        "properties": {
+          "enabled": { "type": "boolean" },
+          "evaluateEnabled": { "type": "boolean" },
+          "defaultProfile": { 
+            "type": "string",
+            "enum": ["openclaw", "chrome", "remote"],
+            "default": "chrome"
+          },
+          "profiles": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "executablePath": { "type": "string" },
+                "userDataDir": { "type": "string" },
+                "cdpPort": { "type": "integer" },
+                "headless": { "type": "boolean" },
+                "attachOnly": { "type": "boolean" },
+                "cdpUrl": { "type": "string" }
+              }
+            }
+          },
+          "color": { "type": "string" }
+        }
+      },
+      "logging": {
+        "type": "object",
+        "properties": {
+          "level": { 
+            "type": "string",
+            "enum": ["debug", "info", "warn", "error"],
+            "default": "info"
+          },
+          "file": { "type": "string" },
+          "consoleLevel": { 
+            "type": "string",
+            "enum": ["debug", "info", "warn", "error"]
+          },
+          "consoleStyle": { 
+            "type": "string",
+            "enum": ["pretty", "json", "minimal"],
+            "default": "pretty"
+          },
+          "redactSensitive": { 
+            "type": "string",
+            "enum": ["none", "tools", "all"],
+            "default": "tools"
+          },
+          "redactPatterns": { 
+            "type": "array", 
+            "items": { "type": "string" } 
+          }
+        }
+      },
+      "auth": {
+        "type": "object",
+        "properties": {
+          "profiles": { "type": "object" },
+          "order": { "type": "object" },
+          "cooldowns": { "type": "object" }
+        }
+      }
+    },
+    "required": ["commands"],
+    "additionalProperties": false,
+    "title": "OpenClawConfig"
+  },
+  "version": "2026.2.1-updated",
+  "generatedAt": "2026-02-14T14:00:00.000Z",
+  "changes": {
+    "fromOriginal": [
+      "Added gateway.canvasHost with enabled and port fields",
+      "Added gateway.controlUi.allowedOrigins, allowInsecureAuth, dangerouslyDisableDeviceAuth",
+      "Added gateway.auth.allowTailscale",
+      "Expanded agents.defaults with complete contextPruning structure",
+      "Expanded agents.defaults with complete compaction.memoryFlush structure",
+      "Expanded agents.defaults with complete sandbox.docker structure",
+      "Added agents.defaults.memorySearch.remote configuration",
+      "Expanded messages with inbound, ackReactionScope, removeAckAfterReply",
+      "Expanded messages.tts with elevenlabs, openai, edge provider configs",
+      "Expanded tools.exec with approvalRunningNoticeMs, host, security, ask",
+      "Expanded session with dmScope, resetTriggers, reset, typingMode, agentToAgent",
+      "Expanded hooks with token, maxBodyBytes, presets, transformsDir, mappings, gmail, internal",
+      "Expanded web with reconnect structure",
+      "Expanded browser with evaluateEnabled, profiles.* structure, color",
+      "Expanded diagnostics with flags, otel structure, cacheTrace structure",
+      "Expanded skills with load and install structures",
+      "Expanded plugins with deny, slots, installs",
+      "Added enum values for multiple string fields",
+      "Added default values for many fields"
+    ]
+  }
+}

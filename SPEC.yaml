@@ -1,0 +1,132 @@
+spec_version: "1.0"
+module_name: "openclaw_config_validator"
+description: "OpenClaw configuration validation and audit skill with Research Workflow and Auto Schema Sync integration"
+version: "2.1.0"
+author: "Galatea"
+date: "2026-02-10"
+
+context:
+  purpose: >
+    Prevent OpenClaw configuration errors by enforcing Research Workflow, schema validation,
+    and automatic schema synchronization from OpenClaw GitHub.
+  target_users: "OpenClaw agents (Galatea) and external auditors (Claude.ai via Notion)"
+
+architecture:
+  type: "layered"
+  layers:
+    - name: "Schema Sync Layer"
+      role: "Automatic weekly sync from OpenClaw GitHub"
+    - name: "Research Layer"
+      role: "Fetch official docs, GitHub issues, validate against schema"
+    - name: "Validation Layer"
+      role: "Schema validation, risk assessment, safety checks"
+    - name: "Audit Layer"
+      role: "Notion integration for external audit workflows"
+    - name: "Execution Layer"
+      role: "Scripts for runtime schema extraction and validation"
+
+interfaces:
+  - name: "SchemaSync"
+    type: "class"
+    description: "Automatic schema synchronization from OpenClaw GitHub (Phase 1 & 2)"
+    
+    methods:
+      - name: "extract_schema"
+        signature: "() -> bool"
+        description: "Download latest TypeScript schema from GitHub"
+        contract:
+          preconditions:
+            - "GitHub is accessible"
+          postconditions:
+            - "Schema files updated if changed"
+            - "Backup created for old versions"
+        test_cases:
+          - id: "TC-SS-001"
+            name: "Schema unchanged"
+            expected:
+              success: true
+              changes: false
+          - id: "TC-SS-002"
+            name: "Schema changed"
+            expected:
+              success: true
+              changes: true
+              backup_created: true
+              
+      - name: "parse_schema"
+        signature: "() -> dict"
+        description: "Parse TypeScript to JSON Schema"
+        contract:
+          postconditions:
+            - "Valid JSON Schema generated"
+            - "Timestamp recorded"
+            
+      - name: "detect_changes"
+        signature: "(old_schema: dict, new_schema: dict) -> list"
+        description: "Compare schemas and report differences (Phase 2)"
+        contract:
+          postconditions:
+            - "Returns list of added/removed/modified fields"
+            - "Breaking changes flagged"
+            - "Report generated in markdown"
+        test_cases:
+          - id: "TC-SS-003"
+            name: "Breaking changes detected"
+            expected:
+              success: true
+              breaking_changes: true
+              exit_code: 2
+
+  - name: "ResearchWorkflow"
+    type: "class"
+    description: "Enforces 'check official docs first' policy"
+    
+    methods:
+      - name: "fetch_official_docs"
+        signature: "(topic: str) -> dict"
+        description: "Fetch and parse OpenClaw official documentation"
+        contract:
+          preconditions:
+            - "topic is a valid OpenClaw configuration topic"
+          postconditions:
+            - "returns parsed documentation content"
+        test_cases:
+          - id: "TC-RW-001"
+            name: "Fetch gateway configuration docs"
+            input:
+              topic: "gateway/configuration"
+            expected:
+              success: true
+              contains: ["port", "bind", "mode"]
+              
+      - name: "search_github_issues"
+        signature: "(error_message: str) -> list"
+        description: "Search OpenClaw GitHub for related issues"
+        contract:
+          preconditions:
+            - "error_message is not empty"
+          postconditions:
+            - "returns list of matching issues"
+        test_cases:
+          - id: "TC-RW-002"
+            name: "Search for config error"
+            input:
+              error_message: "Unrecognized key"
+            expected:
+              success: true
+              min_results: 1
+
+acceptance_criteria:
+  functional:
+    - "Schema sync runs weekly automatically"
+    - "Changes detected and reported"
+    - "Research Workflow executes before any config modification"
+    - "Schema validation passes for valid configs"
+    - "Forbidden fields are detected and blocked"
+    - "Risk assessment correctly classifies 🟢🟡🔴"
+  non_functional:
+    - "Schema sync completes in < 60s"
+    - "Research Workflow completes in < 30s"
+    - "Schema validation completes in < 5s"
+
+# Phase 2 Complete: Auto schema sync + change detection
