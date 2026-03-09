@@ -6,6 +6,8 @@ Automated synchronization between docs-rag (source of truth) and config-validato
 
 **Updated for docs-rag v4.0**: The schema extractor now uses real-time llms.txt-based retrieval instead of PostgreSQL vector search.
 
+> Clarification: docs-rag v4 does **not** keep a local schema database. Local schema snapshots (for diff/baseline) are maintained by config-validator under `reference/openclaw-official-schema.json`.
+
 ### What's New
 - Real-time retrieval: No database required, fetches from docs.openclaw.ai/llms.txt
 - Dual mode support: Auto-detects docs-rag v4.0, falls back to legacy PostgreSQL mode
