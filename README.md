@@ -190,3 +190,6 @@ MIT License - See [LICENSE](LICENSE) for details.
 <p align="center">
   Created by <a href="https://github.com/openclaw">Galatea</a> 🜁
 </p>
+
+## Changelog
+- 2026-03-11: Skill audit upgrade — normalized SKILL.md frontmatter to `name` + `description`, revalidated trigger wording, and rechecked lightweight lint/smoke compatibility with OpenClaw.

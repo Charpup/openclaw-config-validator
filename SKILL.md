@@ -1,7 +1,7 @@
 ---
 name: openclaw-config-validator
-description: Validate and safely modify OpenClaw configuration (openclaw.json) against its 22-node schema. Enforces Research Workflow before any change; uses config.patch (not config.apply) for partial updates. Triggers on "config validation", "schema check", "openclaw.json", "config.patch", "gateway configuration". Risk levels: green/yellow/red.
-version: 1.0.0
+description: >-
+  Validate and safely modify OpenClaw configuration (openclaw.json) against its 22-node schema. Enforces Research Workflow before any change; uses config.patch (not config.apply) for partial updates. Triggers on "config validation", "schema check", "openclaw.json", "config.patch", "gateway configuration". Risk levels: green/yellow/red.
 ---
 
 # OpenClaw Config Validator
